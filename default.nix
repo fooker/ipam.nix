@@ -1,25 +1,29 @@
 { configuration
-, pkgs
-, lib ? pkgs.lib
+, lib
 , check ? true
-,  extraSpecialArgs ? { }
+, extraSpecialArgs ? { }
 }:
 
-with lib;
-
 let
-  modules = import ./modules;
+  # A lib with extensions
+  extlib = (import ./lib lib);
 
-  eval = evalModules {
-    inherit check;
+  eval = extlib.evalModules {
+    modules = [
+      configuration
+      ({ config, ... }: {
+        _module.check = check;
+        _module.args = {
+          ipam = config; # Re-expose global config
+        };
+      })
+    ] ++ (import ./modules);
 
-    modules = [ configuration ] ++ modules;
-    
     specialArgs = {
       modulesPath = builtins.toString ./modules;
     } // extraSpecialArgs;
   };
 in
-  {
-    inherit (eval) config options;
-  }
+{
+  inherit (eval) config options;
+}

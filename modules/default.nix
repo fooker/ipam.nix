@@ -1,3 +1,4 @@
 [
-  
+  ./device.nix
+  ./ip.nix
 ]
