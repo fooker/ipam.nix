@@ -1,8 +1,8 @@
-{ self, super, ... }:
+lib:
 
-with self;
+with lib;
 
-super.types // {
+{
   # A type for references into an attrset.
   # The specified value will must be a string which is an existing key of the
   # given attrset `attrs`. The resulting value in the evaluated configuration

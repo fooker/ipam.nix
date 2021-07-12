@@ -1,6 +1,6 @@
-{ self, ... }:
+lib:
 
-with self;
+with lib;
 
 let
   mkAddress4 = mkAddress {
@@ -88,7 +88,7 @@ in
     parse = input:
       let
         split = splitString "/" input;
-        address = self.ip.address.parse (elemAt split 0);
+        address = lib.ip.address.parse (elemAt split 0);
         prefixLength = toInt (elemAt split 1);
       in
       assert (assertMsg ((length split) == 2) "'${input}' not in form <ip-address>/<prefix-length>");

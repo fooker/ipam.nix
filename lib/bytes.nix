@@ -1,7 +1,7 @@
-{ self, ... }:
+lib:
 
 with builtins;
-with self;
+with lib;
 
 let
   hex = stringToCharacters "0123456789abcdef";
