@@ -18,14 +18,46 @@ let
 
     toString = self:
       let
-        parts = genList
+        # Words of the address as 8 elements of bytes with length 2
+        words = genList
           (n: self.bytes.slice (n * 2) 2)
           ((self.bytes.length) / 2);
 
+        # The longest span of consecutive zero words
+        zeros = filter
+          (span: all
+            (word: word.bytes == [ 0 0 ])
+            (sublist span.start span.count words))
+          (concatLists
+            (genList
+              (start: map
+                (count: { inherit start count; })
+                (range 2 (8 - start)))
+              8));
+
+        # Compressed words
+        compressed =
+          let
+            span = last (sort
+              (a: b:
+                if a.count != b.count
+                then a.count < b.count
+                else a.start > b.start)
+              zeros);
+            fill =
+              if span.start == 0 || (span.start + span.count) == 8
+              then [ bytes.empty bytes.empty ]
+              else [ bytes.empty ];
+          in
+          (take span.start words) ++ fill ++ (drop (span.start + span.count) words);
+
       in
       concatMapStringsSep ":"
-        (part: toLower (toHexString part.asInt))
-        parts;
+        (part:
+          if part.length > 0
+          then toLower (toHexString part.asInt)
+          else "")
+        (if length zeros > 0 then compressed else words);
 
     functor = mkAddress6;
   };
@@ -55,6 +87,9 @@ let
 
       # The prefix network
       network = self.address.functor (bytes.and self.address.bytes self.netmask);
+
+      # The prefix as a network with the host part set to zero
+      prefix = mkNetwork self.network self.prefixLength;
 
       __toString = self: "${toString self.address}/${toString self.prefixLength}";
     }));

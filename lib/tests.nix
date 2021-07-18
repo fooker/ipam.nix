@@ -133,9 +133,39 @@ runTests {
     expected = "1.2.3.4";
   };
 
-  testIpAddressToString6 = {
+  testIpAddressToString6Full = {
+    expr = toString (ip.address.parse "fe80:1:808:42:1:1:ffff:2");
+    expected = "fe80:1:808:42:1:1:ffff:2";
+  };
+
+  testIpAddressToString6CompressedNone = {
+    expr = toString (ip.address.parse "fe80:0:808:42:1:1:ffff:0");
+    expected = "fe80:0:808:42:1:1:ffff:0";
+  };
+
+  testIpAddressToString6CompressedSuffix = {
     expr = toString (ip.address.parse "fe80::");
-    expected = "fe80:0:0:0:0:0:0:0";
+    expected = "fe80::";
+  };
+
+  testIpAddressToString6CompressedPrefix = {
+    expr = toString (ip.address.parse "::1");
+    expected = "::1";
+  };
+
+  testIpAddressToString6CompressedInfix = {
+    expr = toString (ip.address.parse "fe80::1");
+    expected = "fe80::1";
+  };
+
+  testIpAddressToString6CompressedMulti = {
+    expr = toString (ip.address.parse "fe80:0:0:1::1");
+    expected = "fe80:0:0:1::1";
+  };
+
+  testIpAddressToString6CompressedMultiFirst = {
+    expr = toString (ip.address.parse "fe80:0:0:1:1:0:0:1");
+    expected = "fe80::1:1:0:0:1";
   };
 
   testIpNetworkParse4Address = {

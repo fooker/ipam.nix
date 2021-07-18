@@ -75,4 +75,6 @@ rec {
 
   and = zipBytes bitAnd;
   or = zipBytes bitOr;
+
+  empty = mkBytes [ ];
 }
