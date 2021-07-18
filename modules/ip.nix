@@ -6,7 +6,7 @@ let
   address = prefix: { config, name, ... }: {
     options = with types; {
       address = mkOption {
-        type = ip.address;
+        type = ip.strOrAddress;
         description = ''
           The address.
         '';
@@ -47,7 +47,7 @@ let
       };
 
       gateway = mkOption {
-        type = nullOr ip.address;
+        type = nullOr ip.strOrAddress;
         description = ''
           The gateway to use by this address.
         '';
@@ -59,7 +59,7 @@ let
   prefix = { config, name, ... }: {
     options = with types; {
       prefix = mkOption {
-        type = ip.network;
+        type = ip.strOrNetwork;
         description = ''
           IPv4 or IPv6 network with mask in CIDR notation.
         '';
@@ -75,7 +75,7 @@ let
       };
 
       gateway = mkOption {
-        type = nullOr ip.address;
+        type = nullOr ip.strOrAddress;
         description = ''
           The gateway used in this prefix.
         '';

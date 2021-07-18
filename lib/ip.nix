@@ -16,9 +16,16 @@ let
     version = 6;
     length = 16;
 
-    toString = self: concatStringsSep ":" (genList
-      (n: (self.bytes.slice (n * 2) 2).asHexString)
-      ((self.bytes.length) / 2));
+    toString = self:
+      let
+        parts = genList
+          (n: self.bytes.slice (n * 2) 2)
+          ((self.bytes.length) / 2);
+
+      in
+      concatMapStringsSep ":"
+        (part: toLower (toHexString part.asInt))
+        parts;
 
     functor = mkAddress6;
   };

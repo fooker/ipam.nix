@@ -6,7 +6,7 @@
 
 let
   # A lib with extensions
-  extlib = (import ./lib lib);
+  extlib = lib.extend (import ./lib);
 
   eval = extlib.evalModules {
     modules = [

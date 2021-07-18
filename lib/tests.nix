@@ -4,7 +4,7 @@
 
 { lib ? (import <nixpkgs> { }).lib }:
 
-with (import ./default.nix lib);
+with lib.extend (import ./default.nix);
 
 runTests {
   # bytes.nix
@@ -35,48 +35,13 @@ runTests {
   };
 
   testBytesFromBinLong = {
-    expr = (bytes.fromBin [
-      false
-      false
-      true
-      false
-      true
-      false
-      true
-      false
-      false
-      false
-      false
-      true
-      false
-      true
-      true
-      true
-      false
-      false
-      false
-      false
-      false
-      false
-      false
-      false
-      true
-      true
-      true
-      true
-      true
-      true
-      true
-      true
-      false
-      false
-      false
-      false
-      false
-      false
-      false
-      true
-    ]).bytes;
+    expr = (bytes.fromBin (concatLists [
+      [ false false true false true false true false ]
+      [ false false false true false true true true ]
+      [ false false false false false false false false ]
+      [ true true true true true true true true ]
+      [ false false false false false false false true ]
+    ])).bytes;
     expected = [ 42 23 0 255 1 ];
   };
 
@@ -103,6 +68,21 @@ runTests {
   testBytesAsHexStringLong = {
     expr = (bytes.fromDec [ 42 23 0 255 1 ]).asHexString;
     expected = "2a1700ff01";
+  };
+
+  testBytesAsIntEmpty = {
+    expr = (bytes.fromDec [ ]).asInt;
+    expected = 0;
+  };
+
+  testBytesAsIntShort = {
+    expr = (bytes.fromDec [ 254 128 ]).asInt;
+    expected = 65152;
+  };
+
+  testBytesAsIntLong = {
+    expr = (bytes.fromDec [ 42 23 0 255 ]).asInt;
+    expected = 706150655;
   };
 
   testBytesSlice = {
@@ -155,7 +135,7 @@ runTests {
 
   testIpAddressToString6 = {
     expr = toString (ip.address.parse "fe80::");
-    expected = "fe80:0000:0000:0000:0000:0000:0000:0000";
+    expected = "fe80:0:0:0:0:0:0:0";
   };
 
   testIpNetworkParse4Address = {

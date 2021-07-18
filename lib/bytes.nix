@@ -16,10 +16,16 @@ let
     # The number of bytes
     length = length bytes;
 
+    # A single byte at the given position
+    at = elemAt bytes;
+
     # The bytes encoded as hex string
     asHexString = concatMapStrings
       (b: "${dec2hex (div b 16)}${dec2hex (mod b 16)}")
       bytes;
+
+    # The bytes interpreted as an integer
+    asInt = foldl (acc: val: acc * 256 + val) 0 bytes;
 
     # Create a sub-slice of the bytes
     slice = start: count: mkBytes (sublist start count bytes);
