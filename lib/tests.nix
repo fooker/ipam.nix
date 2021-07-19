@@ -128,9 +128,29 @@ runTests {
     expected = [ 254 128 0 0 0 0 0 0 0 0 0 0 0 0 0 0 ];
   };
 
-  testIpAddressParse6Minimal = {
+  testIpAddressParse6MinimalPrefix = {
     expr = (ip.address.parse "fe80::").bytes.bytes;
     expected = [ 254 128 0 0 0 0 0 0 0 0 0 0 0 0 0 0 ];
+  };
+
+  testIpAddressParse6MinimalSuffix = {
+    expr = (ip.address.parse "::1").bytes.bytes;
+    expected = [ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 ];
+  };
+
+  testIpAddressParse6MinimalZero = {
+    expr = (ip.address.parse "::").bytes.bytes;
+    expected = [ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 ];
+  };
+
+  testIpAddressType4 = {
+    expr = isType "ip.address" (ip.address.parse "1.2.3.4");
+    expected = true;
+  };
+
+  testIpAddressType6 = {
+    expr = isType "ip.address" (ip.address.parse "::1");
+    expected = true;
   };
 
   testIpAddressToString4 = {

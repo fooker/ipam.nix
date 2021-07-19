@@ -15,32 +15,45 @@ with lib;
   };
 
   ip = rec {
-    address = mkOptionType {
+    address = (types.coercedTo types.str ip.address.parse (mkOptionType {
       name = "ipAddress";
       description = "IP Address";
       check = isType "ip.address";
       merge = mergeEqualOption;
+    })) // {
+      v4 = types.coercedTo types.str ip.address.parse (mkOptionType {
+        name = "ipAddress";
+        description = "IPv4 Address";
+        check = x: isType "ip.address" x && x.version == 4;
+        merge = mergeEqualOption;
+      });
+
+      v6 = types.coercedTo types.str ip.address.parse (mkOptionType {
+        name = "ipAddress";
+        description = "IPv6 Address";
+        check = x: isType "ip.address" x && x.version == 6;
+        merge = mergeEqualOption;
+      });
     };
 
-    address4 = types.addCheck address (x: x.version == 4);
-    address6 = types.addCheck address (x: x.version == 6);
-
-    strOrAddress = types.coercedTo types.str ip.address.parse address;
-    strOrAddress4 = types.coercedTo types.str ip.address.parse address4;
-    strOrAddress6 = types.coercedTo types.str ip.address.parse address6;
-
-    network = mkOptionType {
+    network = (types.coercedTo types.str ip.network.parse (mkOptionType {
       name = "ipNetwork";
       description = "IP Network";
       check = isType "ip.network";
       merge = mergeEqualOption;
+    })) // {
+      v4 = types.coercedTo types.str ip.network.parse (mkOptionType {
+        name = "ipNetwork";
+        description = "IPv4 Network";
+        check = x: isType "ip.network" x && x.version == 4;
+        merge = mergeEqualOption;
+      });
+      v6 = types.coercedTo types.str ip.network.parse (mkOptionType {
+        name = "ipNetwork";
+        description = "IPv6 Network";
+        check = x: isType "ip.network" x && x.version == 6;
+        merge = mergeEqualOption;
+      });
     };
-
-    network4 = types.addCheck network (x: x.version == 4);
-    network6 = types.addCheck network (x: x.version == 6);
-
-    strOrNetwork = types.coercedTo types.str ip.network.parse network;
-    strOrNetwork4 = types.coercedTo types.str ip.network.parse network4;
-    strOrNetwork6 = types.coercedTo types.str ip.network.parse network6;
   };
 }

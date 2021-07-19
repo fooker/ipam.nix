@@ -69,13 +69,20 @@ let
     , functor
     }: bytes:
       assert (assertMsg (bytes.length == length) "Address musst be ${toString length} bytes long");
-      setType "ip.address" {
-        inherit version bytes functor;
+      setType "ip.address" (fix (self: {
+        inherit version length bytes functor;
 
-        __toString = toString;
-      };
+        # Creates a network with this address and the given prefix length
+        withPrefix = mkNetwork self;
+
+        # Creates a host network with this address and the maximal possible prefix length
+        hostNetwork = self.withPrefix (length * 8);
+
+        __toString = _: toString self;
+      }));
 
   mkNetwork = address: prefixLength:
+    assert (assertMsg (prefixLength >= 0 && prefixLength <= address.length * 8) "Prefix length must be >= 0 and <= ${address.length * 8}");
     setType "ip.network" (fix (self: {
       inherit address prefixLength;
 
