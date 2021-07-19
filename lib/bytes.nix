@@ -55,7 +55,7 @@ rec {
 
   parseHexString = s:
     let
-      chars = stringToCharacters s;
+      chars = stringToCharacters (toLower s);
       charAt = elemAt chars;
     in
     assert assertMsg (mod (length chars) 2 == 0) "Hex string length must be dividable by 2";

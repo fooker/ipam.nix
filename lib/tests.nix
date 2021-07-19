@@ -1,5 +1,5 @@
 # to run these tests:
-# nix-instantiate --eval --strict lib/tests.nix
+# nix-instantiate --eval --strict -E 'import ./lib/tests.nix {}' --show-trace
 # if the resulting list is empty, all tests passed
 
 { lib ? (import <nixpkgs> { }).lib }:
@@ -57,6 +57,11 @@ runTests {
 
   testBytesParseHexStringLong = {
     expr = (bytes.parseHexString "2a1700ff01").bytes;
+    expected = [ 42 23 0 255 1 ];
+  };
+
+  testBytesParseHexStringCased = {
+    expr = (bytes.parseHexString "2A1700Ff01").bytes;
     expected = [ 42 23 0 255 1 ];
   };
 
