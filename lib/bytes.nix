@@ -8,27 +8,15 @@ let
   hex2dec = v: getAttr v (listToAttrs (imap0 (d: x: nameValuePair x d) hex));
   dec2hex = elemAt hex;
 
-  mkBytes = bytes: setType "bytes" {
+  mkBytes = raw: setType "bytes" {
 
     # The raw bytes
-    inherit bytes;
+    inherit raw;
 
     # The number of bytes
-    length = length bytes;
+    length = length raw;
 
-    # A single byte at the given position
-    at = elemAt bytes;
-
-    # The bytes encoded as hex string
-    asHexString = concatMapStrings
-      (b: "${dec2hex (div b 16)}${dec2hex (mod b 16)}")
-      bytes;
-
-    # The bytes interpreted as an integer
-    asInt = foldl (acc: val: acc * 256 + val) 0 bytes;
-
-    # Create a sub-slice of the bytes
-    slice = start: count: mkBytes (sublist start count bytes);
+    __toString = self: toString self.raw;
   };
 in
 rec {
@@ -65,16 +53,33 @@ rec {
 
   concat = l:
     assert (assertMsg (all (isType "bytes") l) "All parts must by bytes");
-    mkBytes (concatLists (map (l: l.bytes) l));
+    mkBytes (concatLists (map (l: l.raw) l));
 
   zipBytes = f: a: b:
     assert (assertMsg (isType "bytes" a) "${toString a} is not bytes");
     assert (assertMsg (isType "bytes" b) "${toString b} is not bytes");
     assert (assertMsg (a.length == b.length) "bytes differ in length");
-    mkBytes (zipListsWith f a.bytes b.bytes);
+    mkBytes (zipListsWith f a.raw b.raw);
 
   and = zipBytes bitAnd;
   or = zipBytes bitOr;
 
   empty = mkBytes [ ];
+
+  # The bytes encoded as hex string
+  asHexString = bytes:
+    assert (assertMsg (isType "bytes" bytes) "${toString bytes} is not bytes");
+    concatMapStrings
+      (b: "${dec2hex (div b 16)}${dec2hex (mod b 16)}")
+      bytes.raw;
+
+  # Create a sub-slice of the bytes
+  slice = start: count: bytes:
+    assert (assertMsg (isType "bytes" bytes) "${toString bytes} is not bytes");
+    mkBytes (sublist start count bytes.raw);
+
+  # The bytes interpreted as an integer
+  asInt = bytes:
+    assert (assertMsg (isType "bytes" bytes) "${toString bytes} is not bytes");
+    foldl (acc: val: acc * 256 + val) 0 bytes.raw;
 }

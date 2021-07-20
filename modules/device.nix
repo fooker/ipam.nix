@@ -119,10 +119,11 @@ let
       };
 
       mac = mkOption {
-        type = strMatching "^([0-9a-f]{2}:){5}([0-9a-f]{2})$";
+        type = nullOr (strMatching "^([0-9a-f]{2}:){5}([0-9a-f]{2})$");
         description = ''
           MAC address of the interface.
         '';
+        default = null;
       };
 
       addresses = mkOption {

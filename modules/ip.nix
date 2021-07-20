@@ -1,4 +1,4 @@
-{ lib, ipam, ... }:
+{ config, lib, ipam, ... }:
 
 with lib;
 
@@ -23,13 +23,13 @@ let
         default = prefix;
       };
 
-      addressWithPrefix = mkOption {
-        type = str;
+      withPrefix = mkOption {
+        type = unspecified;
         description = ''
-          The address with the prefix length of the assigned prefix in CIDR notation.
+          The address associated to the containing prefix.
         '';
         readOnly = true;
-        default = "${toString config.address}/${toString config.prefix.prefix.prefixLength}";
+        default = lib.ip.address.withPrefix config.address config.prefix.prefixLength;
       };
 
       device = mkOption {
@@ -67,6 +67,15 @@ let
         default = name;
       };
 
+      prefixLength = mkOption {
+        type = int;
+        description = ''
+          Prefix length of this prefix.
+        '';
+        readOnly = true;
+        default = config.prefix.prefixLength;
+      };
+
       site = mkOption {
         type = nullOr (refAttr ipam.sites);
         description = ''
@@ -80,6 +89,14 @@ let
           The gateway used in this prefix.
         '';
         default = null;
+      };
+
+      dns = mkOption {
+        type = listOf ip.address;
+        description = ''
+          The DNS servers to use for this prefix.
+        '';
+        default = [ ];
       };
 
       addresses = mkOption {
@@ -102,4 +119,24 @@ in
       default = { };
     };
   };
+
+  config.assertions = flatten [
+    (map
+      (prefix: {
+        assertion = ip.network.equals prefix.prefix (ip.network.prefixNetwork prefix.prefix);
+        message = "Prefix ${toString prefix.prefix} is not a pure network prefix (host-part is not all-zero)";
+      })
+      (attrValues config.prefixes))
+
+    (map
+      (prefix:
+        (map
+          (address: {
+            assertion = ip.network.equals (ip.network.prefixNetwork address.withPrefix) address.prefix.prefix;
+            message = "Address ${toString address.address} is outside of ${toString address.prefix.prefix}";
+          })
+          (attrValues prefix.addresses))
+      )
+      (attrValues config.prefixes))
+  ];
 }

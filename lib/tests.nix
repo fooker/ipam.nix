@@ -10,27 +10,27 @@ runTests {
   # bytes.nix
 
   testBytesFromDecEmpty = {
-    expr = (bytes.fromDec [ ]).bytes;
+    expr = (bytes.fromDec [ ]).raw;
     expected = [ ];
   };
 
   testBytesFromDecShort = {
-    expr = (bytes.fromDec [ 42 ]).bytes;
+    expr = (bytes.fromDec [ 42 ]).raw;
     expected = [ 42 ];
   };
 
   testBytesFromDecLong = {
-    expr = (bytes.fromDec [ 42 23 0 255 1 ]).bytes;
+    expr = (bytes.fromDec [ 42 23 0 255 1 ]).raw;
     expected = [ 42 23 0 255 1 ];
   };
 
   testBytesFromBinEmpty = {
-    expr = (bytes.fromBin [ ]).bytes;
+    expr = (bytes.fromBin [ ]).raw;
     expected = [ ];
   };
 
   testBytesFromBinShort = {
-    expr = (bytes.fromBin [ false false true false true false true false ]).bytes;
+    expr = (bytes.fromBin [ false false true false true false true false ]).raw;
     expected = [ 42 ];
   };
 
@@ -41,57 +41,57 @@ runTests {
       [ false false false false false false false false ]
       [ true true true true true true true true ]
       [ false false false false false false false true ]
-    ])).bytes;
+    ])).raw;
     expected = [ 42 23 0 255 1 ];
   };
 
   testBytesParseHexStringEmpty = {
-    expr = (bytes.parseHexString "").bytes;
+    expr = (bytes.parseHexString "").raw;
     expected = [ ];
   };
 
   testBytesParseHexStringShort = {
-    expr = (bytes.parseHexString "2a").bytes;
+    expr = (bytes.parseHexString "2a").raw;
     expected = [ 42 ];
   };
 
   testBytesParseHexStringLong = {
-    expr = (bytes.parseHexString "2a1700ff01").bytes;
+    expr = (bytes.parseHexString "2a1700ff01").raw;
     expected = [ 42 23 0 255 1 ];
   };
 
   testBytesParseHexStringCased = {
-    expr = (bytes.parseHexString "2A1700Ff01").bytes;
+    expr = (bytes.parseHexString "2A1700Ff01").raw;
     expected = [ 42 23 0 255 1 ];
   };
 
   testBytesAsHexStringEmpty = {
-    expr = (bytes.fromDec [ ]).asHexString;
+    expr = bytes.asHexString (bytes.fromDec [ ]);
     expected = "";
   };
 
   testBytesAsHexStringLong = {
-    expr = (bytes.fromDec [ 42 23 0 255 1 ]).asHexString;
+    expr = bytes.asHexString (bytes.fromDec [ 42 23 0 255 1 ]);
     expected = "2a1700ff01";
   };
 
   testBytesAsIntEmpty = {
-    expr = (bytes.fromDec [ ]).asInt;
+    expr = bytes.asInt (bytes.fromDec [ ]);
     expected = 0;
   };
 
   testBytesAsIntShort = {
-    expr = (bytes.fromDec [ 254 128 ]).asInt;
+    expr = bytes.asInt (bytes.fromDec [ 254 128 ]);
     expected = 65152;
   };
 
   testBytesAsIntLong = {
-    expr = (bytes.fromDec [ 42 23 0 255 ]).asInt;
+    expr = bytes.asInt (bytes.fromDec [ 42 23 0 255 ]);
     expected = 706150655;
   };
 
   testBytesSlice = {
-    expr = ((bytes.fromDec [ 42 23 0 255 1 ]).slice 1 3).bytes;
+    expr = (bytes.slice 1 3 (bytes.fromDec [ 42 23 0 255 1 ])).raw;
     expected = [ 23 0 255 ];
   };
 
@@ -107,39 +107,39 @@ runTests {
       (bytes.fromDec [ ])
       (bytes.fromDec [ 0 255 1 ])
       (bytes.fromDec [ ])
-    ]).bytes;
+    ]).raw;
     expected = [ 42 23 0 255 1 ];
   };
 
   # ip.nix
 
   testIpAddressParse4 = {
-    expr = (ip.address.parse "1.2.3.4").bytes.bytes;
+    expr = (ip.address.parse "1.2.3.4").data.raw;
     expected = [ 1 2 3 4 ];
   };
 
   testIpAddressParse6Full = {
-    expr = (ip.address.parse "fe80:0:0:0:0:0:0:0").bytes.bytes;
+    expr = (ip.address.parse "fe80:0:0:0:0:0:0:0").data.raw;
     expected = [ 254 128 0 0 0 0 0 0 0 0 0 0 0 0 0 0 ];
   };
 
   testIpAddressParse6Sparse = {
-    expr = (ip.address.parse "fe80::0").bytes.bytes;
+    expr = (ip.address.parse "fe80::0").data.raw;
     expected = [ 254 128 0 0 0 0 0 0 0 0 0 0 0 0 0 0 ];
   };
 
   testIpAddressParse6MinimalPrefix = {
-    expr = (ip.address.parse "fe80::").bytes.bytes;
+    expr = (ip.address.parse "fe80::").data.raw;
     expected = [ 254 128 0 0 0 0 0 0 0 0 0 0 0 0 0 0 ];
   };
 
   testIpAddressParse6MinimalSuffix = {
-    expr = (ip.address.parse "::1").bytes.bytes;
+    expr = (ip.address.parse "::1").data.raw;
     expected = [ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 ];
   };
 
   testIpAddressParse6MinimalZero = {
-    expr = (ip.address.parse "::").bytes.bytes;
+    expr = (ip.address.parse "::").data.raw;
     expected = [ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 ];
   };
 
@@ -194,7 +194,7 @@ runTests {
   };
 
   testIpNetworkParse4Address = {
-    expr = (ip.network.parse "1.2.3.4/18").address.bytes.bytes;
+    expr = (ip.network.parse "1.2.3.4/18").address.data.raw;
     expected = [ 1 2 3 4 ];
   };
 
@@ -204,12 +204,12 @@ runTests {
   };
 
   testIpNetworkParse4Network = {
-    expr = (ip.network.parse "123.234.89.200/13").network.bytes.bytes;
+    expr = (ip.network.prefixAddress (ip.network.parse "123.234.89.200/13")).data.raw;
     expected = [ 123 232 0 0 ];
   };
 
   testIpNetworkParse6Address = {
-    expr = (ip.network.parse "fe80::/18").address.bytes.bytes;
+    expr = (ip.network.parse "fe80::/18").address.data.raw;
     expected = [ 254 128 0 0 0 0 0 0 0 0 0 0 0 0 0 0 ];
   };
 
@@ -219,7 +219,7 @@ runTests {
   };
 
   testIpNetworkParse6Network = {
-    expr = (ip.network.parse "fe83::/15").network.bytes.bytes;
+    expr = (ip.network.prefixAddress (ip.network.parse "fe83::/15")).data.raw;
     expected = [ 254 130 0 0 0 0 0 0 0 0 0 0 0 0 0 0 ];
   };
 }
