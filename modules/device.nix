@@ -1,4 +1,4 @@
-{ lib, ipam, ... }:
+{ config, lib, ipam, ... }:
 
 with lib;
 
@@ -133,6 +133,40 @@ let
         '';
         readOnly = true;
       };
+
+      satelite = mkOption {
+        type = nullOr (submodule {
+          options = {
+            addresses = mkOption {
+              type = listOf ip.network;
+              description = ''
+                IP addresses of the satelite interface.
+              '';
+            };
+
+            gateways = mkOption {
+              type = listOf ip.address;
+              description = ''
+                IP addresses of gateways for the satelite interface.
+              '';
+            };
+
+            dns = mkOption {
+              type = listOf ip.address;
+              description = ''
+                IP addresses of DNS server for the satelite interface.
+              '';
+            };
+          };
+        });
+        description = ''
+          A satelite interface definition.
+
+          A satelite interface is not associated to any managed prefix but has a
+          standalone address configuration directly assigned to the interface.
+        '';
+        default = null;
+      };
     };
 
     config = {
@@ -162,4 +196,17 @@ in
       default = { };
     };
   };
+
+  config.assertions = flatten [
+    (map
+      (device:
+        (map
+          (interface: {
+            assertion = interface.satelite != null -> interface.addresses == [ ];
+            message = "${device}:${interface} has satelite config but also assigned addresses";
+          })
+          (attrValues device.interfaces))
+      )
+      (attrValues config.devices))
+  ];
 }
