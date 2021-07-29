@@ -67,7 +67,7 @@ let
       };
 
       site = mkOption {
-        type = refAttr ipam.sites;
+        type = nullOr (refAttr ipam.sites);
         description = ''
           The site the device is located in.
         '';
@@ -94,6 +94,7 @@ let
         description = ''
           The interfaces of the device.
         '';
+        default = { };
       };
     };
   };
