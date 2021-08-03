@@ -3,7 +3,7 @@
 with lib;
 
 let
-  site = { name, ... }: {
+  site = { config, name, ... }: {
     options = with types; {
       name = mkOption {
         type = str;
@@ -21,6 +21,32 @@ let
         '';
         default = null;
       };
+
+      devices = mkOption {
+        type = listOf unspecified;
+        description = ''
+          All devices in this site.
+        '';
+        readOnly = true;
+      };
+
+      prefixes = mkOption {
+        type = listOf unspecified;
+        description = ''
+          All prefixes in this site.
+        '';
+        readOnly = true;
+      };
+    };
+
+    config = {
+      devices = filter
+        (device: device.site.name == config.name)
+        (attrValues ipam.devices);
+
+      prefixes = filter
+        (prefix: prefix.site.name == config.name)
+        (attrValues ipam.prefixes);
     };
   };
 
