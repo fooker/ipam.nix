@@ -192,6 +192,14 @@ let
                 IP addresses of DNS server for the satelite interface.
               '';
             };
+
+            # TODO fooker: make extra routes available for satelite configs
+            routes = mkOption {
+              type = listOf unspecified;
+              internal = true;
+              readOnly = true;
+              default = [ ];
+            };
           };
         });
         description = ''

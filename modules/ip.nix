@@ -56,6 +56,34 @@ let
     };
   };
 
+  route = prefix: { config, ... }: {
+    options = with types; {
+      destination = mkOption {
+        type = ip.network;
+        description = ''
+          The destination prefix of the route.
+        '';
+      };
+
+      gateway = mkOption {
+        type = ip.address;
+        description = ''
+          The gateway address.
+        '';
+        default = config.prefix.gateway;
+      };
+
+      prefix = mkOption {
+        type = unspecified;
+        description = ''
+          The prefix this address is assigned to.
+        '';
+        readOnly = true;
+        default = prefix;
+      };
+    };
+  };
+
   prefix = { config, name, ... }: {
     options = with types; {
       prefix = mkOption {
@@ -105,6 +133,14 @@ let
           Addresses assigned in this prefix.
         '';
         default = { };
+      };
+
+      routes = mkOption {
+        type = listOf (submodule (route config));
+        description = ''
+          Additional routes available in this prefix.
+        '';
+        default = [ ];
       };
     };
   };
