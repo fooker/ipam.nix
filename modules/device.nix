@@ -41,11 +41,11 @@ let
 
     config = {
       devices = filter
-        (device: device.site.name == config.name)
+        (device: device.site != null && device.site.name == config.name)
         (attrValues ipam.devices);
 
       prefixes = filter
-        (prefix: prefix.site.name == config.name)
+        (prefix: prefix.site != null && prefix.site.name == config.name)
         (attrValues ipam.prefixes);
     };
   };
@@ -161,6 +161,14 @@ let
         readOnly = true;
       };
 
+      effectiveAddresses = mkOption {
+        type = listOf unspecified;
+        description = ''
+          The effective IP addresses with prefix assigned to the interface.
+        '';
+        readOnly = true;
+      };
+
       satelite = mkOption {
         type = nullOr (submodule {
           options = {
@@ -202,6 +210,11 @@ let
         (concatMap
           (prefix: (attrValues prefix.addresses))
           (attrValues ipam.prefixes));
+
+      effectiveAddresses =
+        if config.satelite != null
+        then config.satelite.addresses
+        else map (address: address.withPrefix) config.addresses;
     };
   };
 in
