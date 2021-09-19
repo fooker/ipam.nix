@@ -3,4 +3,6 @@ self: super: {
 
   ip = import ./ip.nix self;
   bytes = import ./bytes.nix self;
+
+  utils = import ./utils.nix self;
 }

@@ -161,6 +161,22 @@ let
         readOnly = true;
       };
 
+      address.ipv4 = mkOption {
+        type = ip.network.v4;
+        description = ''
+          the IPv4 address of the interface.
+        '';
+        readOnly = true;
+      };
+
+      address.ipv6 = mkOption {
+        type = ip.network.v6;
+        description = ''
+          the IPv4 address of the interface.
+        '';
+        readOnly = true;
+      };
+
       effectiveAddresses = mkOption {
         type = listOf unspecified;
         description = ''
@@ -223,6 +239,14 @@ let
         if config.satelite != null
         then config.satelite.addresses
         else map (address: address.withPrefix) config.addresses;
+
+      address.ipv4 = utils.ensureSingle
+        (address: address.version == 4)
+        config.effectiveAddresses;
+
+      address.ipv6 = utils.ensureSingle
+        (address: address.version == 6)
+        config.effectiveAddresses;
     };
   };
 in
