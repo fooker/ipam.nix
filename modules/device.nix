@@ -122,6 +122,20 @@ let
         '';
         default = { };
       };
+
+      effectiveAddresses = mkOption {
+        type = listOf unspecified;
+        description = ''
+          The effective IP addresses with prefix assigned to the device.
+        '';
+        readOnly = true;
+      };
+    };
+
+    config = {
+      effectiveAddresses = concatMap
+        (interface: interface.effectiveAddresses)
+        (attrValues config.interfaces);
     };
   };
 
