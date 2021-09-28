@@ -223,11 +223,25 @@ let
               '';
             };
 
-            # TODO fooker: make extra routes available for satelite configs
             routes = mkOption {
-              type = listOf unspecified;
-              internal = true;
-              readOnly = true;
+              type = listOf (submodule {
+                options = with types; {
+                  destination = mkOption {
+                    type = ip.network;
+                    description = ''
+                      The destination prefix of the route.
+                    '';
+                  };
+
+                  gateway = mkOption {
+                    type = ip.address;
+                    description = ''
+                      The gateway address.
+                    '';
+                    default = config.prefix.gateway;
+                  };
+                };
+              });
               default = [ ];
             };
           };
