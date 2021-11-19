@@ -84,6 +84,42 @@ let
     };
   };
 
+  reservation = prefix: { name, ... }: {
+    options = with types; {
+      name = mkOption {
+        type = str;
+        description = ''
+          The name of the reservation.
+        '';
+        readOnly = true;
+        default = name;
+      };
+
+      description = mkOption {
+        type = str;
+        description = ''
+          Description for the reservation.
+        '';
+      };
+
+      range = mkOption {
+        type = addCheck (listOf ip.address) (l: (length l) == 2);
+        description = ''
+          Reserved range as start and end address (both inclusive).
+        '';
+      };
+
+      prefix = mkOption {
+        type = unspecified;
+        description = ''
+          The prefix this reservation is assigned to.
+        '';
+        readOnly = true;
+        default = prefix;
+      };
+    };
+  };
+
   prefix = { config, name, ... }: {
     options = with types; {
       prefix = mkOption {
@@ -141,6 +177,14 @@ let
           Additional routes available in this prefix.
         '';
         default = [ ];
+      };
+
+      reservations = mkOption {
+        type = attrsOf (submodule (reservation config));
+        description = ''
+          Reserved addresses in this prefix.
+        '';
+        default = { };
       };
     };
   };
