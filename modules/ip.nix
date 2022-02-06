@@ -117,6 +117,14 @@ let
         readOnly = true;
         default = prefix;
       };
+
+      extraConfig = mkOption {
+        type = attrs;
+        description = ''
+          Arbitrary additional configuration.
+        '';
+        default = { };
+      };
     };
   };
 
