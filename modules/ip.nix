@@ -1,9 +1,9 @@
-{ config, lib, ipam, ... }:
+{ config, lib, ipam, extend, ... }:
 
 with lib;
 
 let
-  address = prefix: { config, name, ... }: {
+  address = prefix: extend "address" ({ config, name, ... }: {
     options = with types; {
       address = mkOption {
         type = ip.address;
@@ -54,9 +54,9 @@ let
         default = config.prefix.gateway;
       };
     };
-  };
+  });
 
-  route = prefix: { config, ... }: {
+  route = prefix: extend "route" ({ config, ... }: {
     options = with types; {
       destination = mkOption {
         type = ip.network;
@@ -82,9 +82,9 @@ let
         default = prefix;
       };
     };
-  };
+  });
 
-  reservation = prefix: { name, ... }: {
+  reservation = prefix: extend "reservation" ({ name, ... }: {
     options = with types; {
       name = mkOption {
         type = str;
@@ -117,18 +117,10 @@ let
         readOnly = true;
         default = prefix;
       };
-
-      extraConfig = mkOption {
-        type = attrs;
-        description = ''
-          Arbitrary additional configuration.
-        '';
-        default = { };
-      };
     };
-  };
+  });
 
-  prefix = { config, name, ... }: {
+  prefix = extend "prefix" ({ config, name, ... }: {
     options = with types; {
       prefix = mkOption {
         type = ip.network;
@@ -172,7 +164,7 @@ let
       };
 
       addresses = mkOption {
-        type = attrsOf (submodule (address config));
+        type = attrsOf (address config);
         description = ''
           Addresses assigned in this prefix.
         '';
@@ -180,7 +172,7 @@ let
       };
 
       routes = mkOption {
-        type = listOf (submodule (route config));
+        type = listOf (route config);
         description = ''
           Additional routes available in this prefix.
         '';
@@ -188,19 +180,19 @@ let
       };
 
       reservations = mkOption {
-        type = attrsOf (submodule (reservation config));
+        type = attrsOf (reservation config);
         description = ''
           Reserved addresses in this prefix.
         '';
         default = { };
       };
     };
-  };
+  });
 in
 {
   options = with types; {
     prefixes = mkOption {
-      type = attrsOf (submodule prefix);
+      type = attrsOf prefix;
       description = ''
         Prefixes.
       '';

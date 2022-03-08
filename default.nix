@@ -11,8 +11,7 @@ let
   extlib = lib.extend (import ./lib);
 
   eval = extlib.evalModules {
-    modules = [
-      configuration
+    modules = (toList configuration) ++ [
       ({ config, ... }: {
         config = {
           _module.check = check;

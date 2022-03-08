@@ -1,9 +1,9 @@
-{ config, lib, ipam, ... }:
+{ config, lib, ipam, extend, ... }:
 
 with lib;
 
 let
-  site = { config, name, ... }: {
+  site = extend "site" ({ config, name, ... }: {
     options = with types; {
       name = mkOption {
         type = str;
@@ -48,9 +48,9 @@ let
         (prefix: prefix.site != null && prefix.site.name == config.name)
         (attrValues ipam.prefixes);
     };
-  };
+  });
 
-  device = { config, name, ... }: {
+  device = extend "device" ({ config, name, ... }: {
     options = with types; {
       name = mkOption {
         type = str;
@@ -116,7 +116,7 @@ let
       };
 
       interfaces = mkOption {
-        type = attrsOf (submodule (interface config));
+        type = attrsOf (interface config);
         description = ''
           The interfaces of the device.
         '';
@@ -137,9 +137,9 @@ let
         (interface: interface.effectiveAddresses)
         (attrValues config.interfaces);
     };
-  };
+  });
 
-  interface = device: { config, name, ... }: {
+  interface = device: extend "interface" ({ config, name, ... }: {
     options = with types; {
       name = mkOption {
         type = str;
@@ -224,7 +224,7 @@ let
             };
 
             routes = mkOption {
-              type = listOf (submodule {
+              type = listOf (extend "route" {
                 options = with types; {
                   destination = mkOption {
                     type = ip.network;
@@ -276,12 +276,12 @@ let
         (address: address.version == 6)
         config.effectiveAddresses;
     };
-  };
+  });
 in
 {
   options = with types; {
     sites = mkOption {
-      type = attrsOf (submodule site);
+      type = attrsOf site;
       description = ''
         The sites of your network.
       '';
@@ -289,7 +289,7 @@ in
     };
 
     devices = mkOption {
-      type = attrsOf (submodule device);
+      type = attrsOf device;
       description = ''
         Pieces of hardware.
       '';
