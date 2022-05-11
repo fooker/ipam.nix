@@ -1,7 +1,6 @@
 { configuration
 , lib
 , check ? true
-, extraSpecialArgs ? { }
 }:
 
 with lib;
@@ -38,7 +37,7 @@ let
 
     specialArgs = {
       modulesPath = builtins.toString ./modules;
-    } // extraSpecialArgs;
+    };
   };
 
   failedAssertions = filter (x: !x.assertion) eval.config.assertions;
