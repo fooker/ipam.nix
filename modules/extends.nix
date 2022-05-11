@@ -4,7 +4,7 @@ with lib;
 
 let
   mkExtend = name: mkOption {
-    type = types.uniq types.anything;
+    type = types.coercedTo (types.uniq types.anything) toList (types.listOf (types.uniq types.anything));
     description = ''
       Extensions options defined for elements of type ${name}
     '';
@@ -29,10 +29,7 @@ in
       # TODO: Use types.optionType instead and leverage mkMerge to merge a custome module with the base definition
       extend = name: base:
         assert assertMsg (config.extends ? "${name}") "Undeclared extension: ${name}";
-        types.submodule [
-          base
-          config.extends."${name}"
-        ];
+        types.submodule ([ base ] ++ config.extends."${name}");
     };
   };
 }
