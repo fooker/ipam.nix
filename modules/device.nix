@@ -234,7 +234,7 @@ let
                   };
 
                   gateway = mkOption {
-                    type = ip.address;
+                    type = nullOr ip.address;
                     description = ''
                       The gateway address.
                     '';
