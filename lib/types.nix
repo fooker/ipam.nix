@@ -9,7 +9,7 @@ with lib;
   # is the according value for the key in `attrs`.
   refAttr = attrs: mkOptionType rec {
     name = "refAttr";
-    description = "a reference (one of ${concatMapStringsSep ", " (attrNames attrs)})";
+    description = "a reference (one of ${concatStringsSep ", " (attrNames attrs)})";
     check = value: hasAttr value attrs;
     merge = loc: defs: getAttr (mergeEqualOption loc defs) attrs;
   };
