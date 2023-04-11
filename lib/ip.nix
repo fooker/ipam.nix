@@ -21,7 +21,7 @@ let
         # Words of the address as 8 elements of bytes with length 2
         words = genList
           (n: bytes.slice (n * 2) 2 self.data)
-          ((self.data.length) / 2);
+          (self.data.length / 2);
 
         # The longest span of consecutive zero words
         zeros = filter
@@ -81,7 +81,7 @@ let
       inherit address prefixLength;
 
       # The IP version
-      version = self.address.version;
+      inherit (self.address) version;
 
       __toString = self: "${toString self.address}/${toString self.prefixLength}";
     }));

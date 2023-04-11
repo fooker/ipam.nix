@@ -5,10 +5,7 @@ let
     src = ./.;
     hooks = {
       nixpkgs-fmt.enable = true;
-      nix-linter.enable = true;
-    };
-    settings = {
-      nix-linter.checks = [ "No-UnfortunateArgName" ];
+      statix.enable = true;
     };
   };
 
@@ -18,8 +15,7 @@ pkgs.mkShell {
     bash
     gitAndTools.git
     nixpkgs-fmt
-    nix-linter
-    shellcheck
+    statix
   ];
 
   inherit (nix-pre-commit-hooks) shellHook;
