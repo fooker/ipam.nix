@@ -148,6 +148,11 @@ in
       assert (assertMsg (isType "ip.network" network) "${toString network} is not network");
       bytes.fromBin (genList (n: n < network.prefixLength) (network.address.data.length * 8));
 
+    # The host mask as bytes
+    hostmask = network:
+      assert (assertMsg (isType "ip.network" network) "${toString network} is not network");
+      bytes.fromBin (genList (n: n >= network.prefixLength) (network.address.data.length * 8));
+
     # The prefix address of the network
     prefixAddress = network:
       assert (assertMsg (isType "ip.network" network) "${toString network} is not network");
@@ -157,6 +162,18 @@ in
     prefixNetwork = network:
       assert (assertMsg (isType "ip.network" network) "${toString network} is not network");
       mkNetwork (prefixAddress network) network.prefixLength;
+
+    # Create a network with the given host part
+    withHost = network: host:
+      assert (assertMsg (isType "ip.network" network) "${toString network} is not network");
+      assert (assertMsg (isType "bytes" host) "${toString host} is not bytes");
+      let
+        host' = bytes.fill host network.address.length;
+      in
+      assert (assertMsg (bytes.equals (bytes.and (hostmask network) host') host') "${toString host} is longer than prefix of ${toString network}");
+      mkNetwork
+        (network.address.functor (bytes.or (prefixAddress network).data host'))
+        network.prefixLength;
 
     equals = a: b:
       assert (assertMsg (isType "ip.network" a) "${toString a} is not network");

@@ -20,6 +20,16 @@ let
   };
 in
 rec {
+  fromInt = int:
+    assert (assertMsg (int >= 0) "Must be positive integer");
+    let
+      parse = i:
+        if (i == 0)
+        then [ ]
+        else (parse (div i 256)) ++ (singleton (mod i 256));
+    in
+    mkBytes (parse int);
+
   fromDec = bytes:
     assert (assertMsg (all (b: 0 <= b && b <= 255) bytes) "Some bytes are not 0 <= x <= 255");
     mkBytes bytes;
@@ -82,4 +92,16 @@ rec {
   asInt = bytes:
     assert (assertMsg (isType "bytes" bytes) "${toString bytes} is not bytes");
     foldl (acc: val: acc * 256 + val) 0 bytes.raw;
+
+  # Compare two bytes values
+  equals = a: b:
+    assert (assertMsg (isType "bytes" a) "${toString a} is not bytes");
+    assert (assertMsg (isType "bytes" b) "${toString b} is not bytes");
+    a.raw == b.raw;
+
+  # Fill bytes with leading zeros
+  fill = bytes: minLen:
+    assert (assertMsg (isType "bytes" bytes) "${toString bytes} is not bytes");
+    assert (assertMsg (bytes.length <= minLen) "${toString bytes} is longer than ${toString minLen}");
+    mkBytes ((genList (_: 0) (minLen - bytes.length)) ++ bytes.raw);
 }

@@ -9,6 +9,21 @@ with lib.extend (import ./default.nix);
 runTests {
   # bytes.nix
 
+  testBytesFromIntZero = {
+    expr = (bytes.fromInt 0).raw;
+    expected = [ ];
+  };
+
+  testBytesFromIntShort = {
+    expr = (bytes.fromInt 129).raw;
+    expected = [ 129 ];
+  };
+
+  testBytesFromIntLong = {
+    expr = (bytes.fromInt 13372342).raw;
+    expected = [ 204 11 182 ];
+  };
+
   testBytesFromDecEmpty = {
     expr = (bytes.fromDec [ ]).raw;
     expected = [ ];
@@ -109,6 +124,28 @@ runTests {
       (bytes.fromDec [ ])
     ]).raw;
     expected = [ 42 23 0 255 1 ];
+  };
+
+  testBytesEquals = {
+    expr = bytes.equals
+      (bytes.fromDec [ 13 37 23 42 ])
+      (bytes.fromDec [ 13 37 23 42 ]);
+    expected = true;
+  };
+
+  testBytesFill = {
+    expr = (bytes.fill (bytes.fromDec [ 13 37 23 42 ]) 8).raw;
+    expected = [ 0 0 0 0 13 37 23 42 ];
+  };
+
+  testBytesFillEmpty = {
+    expr = (bytes.fill (bytes.fromDec [ ]) 3).raw;
+    expected = [ 0 0 0 ];
+  };
+
+  testBytesFillFull = {
+    expr = (bytes.fill (bytes.fromDec [ 13 37 23 42 ]) 4).raw;
+    expected = [ 13 37 23 42 ];
   };
 
   # ip.nix
@@ -221,5 +258,10 @@ runTests {
   testIpNetworkParse6Network = {
     expr = (ip.network.prefixAddress (ip.network.parse "fe83::/15")).data.raw;
     expected = [ 254 130 0 0 0 0 0 0 0 0 0 0 0 0 0 0 ];
+  };
+
+  testIpNetworkWithHost = {
+    expr = (ip.network.withHost (ip.network.parse "192.168.1.0/24") (bytes.fromInt 23)).address.data.raw;
+    expected = [ 192 168 1 23 ];
   };
 }
