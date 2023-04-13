@@ -124,7 +124,7 @@ in
 
     # Creates a host network with this address and the maximal possible prefix length
     hostNetwork = address:
-      assert (assertMsg (isType "ip.address" address) "${toString network} is not address");
+      assert (assertMsg (isType "ip.address" address) "${toString address} is not address");
       withPrefix address (address.length * 8);
 
     equals = a: b:
