@@ -3,6 +3,11 @@
 with lib;
 
 let
+  ensureSingle = pred: findSingle
+    pred
+    (throw "No element found")
+    (throw "More than one element found");
+
   site = extend "site" ({ config, name, ... }: {
     options = with types; {
       name = mkOption {
@@ -268,11 +273,11 @@ let
         then config.satelite.addresses
         else map (address: address.withPrefix) config.addresses;
 
-      address.ipv4 = utils.ensureSingle
+      address.ipv4 = ensureSingle
         (address: address.version == 4)
         config.effectiveAddresses;
 
-      address.ipv6 = utils.ensureSingle
+      address.ipv6 = ensureSingle
         (address: address.version == 6)
         config.effectiveAddresses;
     };
