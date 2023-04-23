@@ -6,5 +6,7 @@
       inherit (nixpkgs) lib;
       inherit configuration;
     };
+
+    lib = import ./lib;
   };
 }
