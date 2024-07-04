@@ -3,13 +3,42 @@
 with lib;
 
 let
-  mkExtend = name: mkOption {
-    type = types.coercedTo (types.uniq types.anything) toList (types.listOf (types.uniq types.anything));
+  mkExtend = type: mkOption {
+    type = types.attrsOf (types.submodule ({ name, config, ... }: {
+      options = {
+        type = mkOption {
+          type = types.optionType;
+          description = ''
+            Type of the extionsion option.
+          '';
+        };
+        description = mkOption {
+          type = types.nullOr types.str;
+          default = null;
+          description = ''
+            Description of the extension option.
+          '';
+        };
+        default = mkOption {
+          type = types.nullOr config.type;
+          default = null;
+          description = ''
+            Default value for the extension option.
+          '';
+        };
+      };
+    }));
     description = ''
-      Extensions options defined for elements of type ${name}
+      Extensions options defined for elements of type ${type}
     '';
     default = { };
   };
+
+  mkOptions = type: mapAttrs
+    (name: option: mkOption {
+      inherit (option) type description default;
+    })
+    config.extends.${type};
 in
 {
   options = {
@@ -29,7 +58,10 @@ in
       # TODO: Use types.optionType instead and leverage mkMerge to merge a custome module with the base definition
       extend = name: base:
         assert assertMsg (config.extends ? "${name}") "Undeclared extension: ${name}";
-        types.submodule ([ base ] ++ config.extends."${name}");
+        types.submodule [
+          base
+          { options = mkOptions name; }
+        ];
     };
   };
 }
